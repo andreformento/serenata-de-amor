@@ -39,6 +39,7 @@ COPY ./requirements.txt /code/requirements.txt
 COPY ./requirements-dev.txt /code/requirements-dev.txt
 COPY manage.py /code/manage.py
 COPY jarbas /code/jarbas
+COPY rosie /code/rosie
 
 COPY --from=elm-builder /code/jarbas/assets/layers/static/app.js /code/jarbas/layers/static/app.js
 

@@ -26,6 +26,7 @@ services:
 
   rosie:
     image: serenata/rosie
+    # build: rosie/
 
   tasks:
     command: ["newrelic-admin", "run-program", "celery", "worker", "--app", "jarbas"]

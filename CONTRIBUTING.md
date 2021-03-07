@@ -23,7 +23,7 @@ $ make run-and-populate-sample-data
 Example to run only Rosie:
 
 ```console
-$ docker-compose run --rm rosie python rosie.py run chamber_of_deputies
+$ docker-compose run --rm rosie python rosie/rosie.py run chamber_of_deputies
 ```
 
 [Check Rosie's `README.md` for more details](rosie/README.md).

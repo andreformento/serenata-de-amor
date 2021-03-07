@@ -13,13 +13,10 @@ As our stack is not a simple one we opted for standardizing our instructions do 
 Everything is expected to work with:
 
 ```console
-$ cp contrib/.env.sample .env
-$ docker-compose up
+$ make run-and-populate-sample-data
 ```
 
-**Note:** `docker-compose up` is just a health check to assure all dependencies are succesfully installed and the project is running well. To run properly Jarbas and Rosie there are a few more steps (migrations, for example), which are the ones below.
-
-Then `.env` file you just copied contains [environment variables for Jarbas](jarbas/README.md#settings). Feel free to customize it.
+**Note:** `.env` file you just copied contains [environment variables for Jarbas](jarbas/README.md#settings). Feel free to customize it.
 
 ### Running Rosie
 
@@ -47,7 +44,7 @@ $ docker-compose run --rm django python manage.py tweets
 The spin up the web server:
 
 ```console
-$ docker-compose up django
+$ docker-compose up django --build
 ```
 
 Then browse from [`0.0.0.0:8000`](http://0.0.0.0:8000). [Check Jarbas's `README.md` for more details](jarbas/README.md).

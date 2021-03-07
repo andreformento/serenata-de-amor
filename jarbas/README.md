@@ -207,21 +207,20 @@ You must first install [Docker](https://docs.docker.com/engine/installation/) an
 
 #### Build and start services
 
-```console
-$ docker-compose up -d
+```shell
+$ make run
 ```
 
-#### Create and seed the database with sample data
-
-Creating the database and applying migrations:
-
+If you want to run with sample data:
+```shell
+$ make run-and-populate-sample-data
 ```
-$ docker-compose run --rm django python manage.py migrate
-```
+
+##### How o add more data
 
 Seeding it with sample data:
 
-```console
+```shell
 $ docker-compose run --rm django python manage.py reimbursements /mnt/data/reimbursements_sample.csv
 $ docker-compose run --rm django python manage.py companies /mnt/data/companies_sample.xz
 $ docker-compose run --rm django python manage.py suspicions /mnt/data/suspicions_sample.xz

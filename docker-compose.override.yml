@@ -9,15 +9,8 @@ services:
       - "8000:8000"
     restart: "no"
     volumes:
-      - .:/code
       - ./contrib/data:/mnt/data
       - /tmp/serenata-data:/mnt/rosie-output
-
-  elm:
-    command: ["npm", "run", "watch"]
-    restart: "no"
-    volumes:
-      - ./jarbas:/code/jarbas
 
   postgres:
     env_file:
@@ -31,14 +24,14 @@ services:
   rosie:
     volumes:
       - /tmp/serenata-data:/tmp/serenata-data
-      - ./rosie:/code
+      - ./rosie:/code:ro
 
   tasks:
     restart: "no"
     volumes:
-      - .:/code
+      - .:/code:ro
 
   beat:
     restart: "no"
     volumes:
-      - .:/code
+      - .:/code:ro

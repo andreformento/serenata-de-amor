@@ -1,14 +1,15 @@
 replicaCount: 1
 
 image:
-  repository: andreformento/serenata-jarbas
+  repository: serenata/django
   pullPolicy: Always
-  tag: "0.0.1"
+  tag: ""
 
 nameOverride: ""
 fullnameOverride: ""
 
-podAnnotations: {}
+migrationsPodAnnotations: {}
+appPodAnnotations: {}
 
 service:
   type: ClusterIP
@@ -32,12 +33,20 @@ service:
   #      - chart-example.local
 
 resources:
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
+  migrations:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  app:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
 
 nodeSelector: {}
 

@@ -26,9 +26,12 @@ spec:
             - name: http
               containerPort: 8000
               protocol: TCP
-          volumeMounts:
-            - name: config-volume
-              mounthPath: /
+          envFrom:
+          - configMapRef:
+              name: {{ include "jarbas.fullname" . }}
+          # volumeMounts:
+          #   - name: config-volume
+          #     mounthPath: /
           # livenessProbe:
           #   httpGet:
           #     path: /

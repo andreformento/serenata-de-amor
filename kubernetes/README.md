@@ -18,13 +18,13 @@ kubectl -n okfn-brasil port-forward service/jarbas 8080:80
 
 ## TODO
 
-- configmap with dynamic data
-- secrets for database configuration instead configmap
-- populate fake data for local development
-- configure ingress
-- configure nginx
-- validate production environment
-- improve readme
+- [] configmap with dynamic data
+- [] secrets for database configuration instead configmap
+- [] populate fake data for local development
+- [] configure ingress
+- [] configure nginx
+- [] validate production environment
+- [] improve readme
 
 ## References
 

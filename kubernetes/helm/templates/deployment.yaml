@@ -6,6 +6,12 @@ metadata:
     {{- include "jarbas.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  minReadySeconds: {{ .Values.minReadySeconds }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: {{ .Values.strategy.rollingUpdate.maxSurge }}
   selector:
     matchLabels:
       {{- include "jarbas.selectorLabels" . | nindent 6 }}
@@ -33,10 +39,16 @@ spec:
             httpGet:
               path: /
               port: http
+            timeoutSeconds: {{ .Values.api.livenessProbe.timeoutSeconds }}
+            periodSeconds: {{ .Values.api.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.api.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
               path: /
               port: http
+            timeoutSeconds: {{ .Values.api.readinessProbe.timeoutSeconds }}
+            periodSeconds: {{ .Values.api.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.api.readinessProbe.failureThreshold }}
           resources:
             {{- toYaml .Values.resources.app | nindent 12 }}
       {{- with .Values.nodeSelector }}

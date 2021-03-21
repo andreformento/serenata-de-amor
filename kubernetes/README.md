@@ -1,5 +1,6 @@
 # Kubernetes
 
+- create application
 ```shell
 helm -n okfn-brasil \
      upgrade jarbas \
@@ -8,6 +9,11 @@ helm -n okfn-brasil \
      --set image.repository=andreformento/serenata-jarbas,image.tag=0.0.2,migrations.run=true \
      --install \
      --atomic
+```
+
+- port forward
+```shell
+kubectl -n okfn-brasil port-forward service/jarbas 8080:80
 ```
 
 ## References

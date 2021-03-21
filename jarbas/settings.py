@@ -184,11 +184,7 @@ CACHES = {
     'default': {
         'BACKEND': config('CACHE_BACKEND', default=default_cache),
         'LOCATION': config('CACHE_LOCATION', default=None),
-        'TIMEOUT': 60 * 60 * 6,
-        'OPTIONS': {
-            'username': config('CACHE_USERNAME', default=None),
-            'password': config('CACHE_PASSWORD', default=None)
-        }
+        'TIMEOUT': 60 * 60 * 6
     }
 }
 

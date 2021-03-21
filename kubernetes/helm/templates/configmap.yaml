@@ -12,8 +12,6 @@ data:
   AMAZON_SECRET_KEY: ""
   CACHE_BACKEND: django.core.cache.backends.memcached.MemcachedCache
   CACHE_LOCATION: memcached.okfn-brasil.svc.cluster.local:11211
-  CACHE_PASSWORD: password
-  CACHE_USERNAME: user
   CELERY_BROKER_URL: amqp://user:password@rabbitmq.okfn-brasil.svc.cluster.local:5672/
   DATABASE_URL: postgres://jarbas:mysecretpassword@postgresql.okfn-brasil.svc.cluster.local/jarbas
   ENVIRONMENT: development

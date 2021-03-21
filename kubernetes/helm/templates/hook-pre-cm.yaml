@@ -1,0 +1,17 @@
+{{- if .Values.migrations.run }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "jarbas.fullname" . }}-migration
+  labels:
+    {{- include "jarbas.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+data:
+  DATABASE_URL: postgres://jarbas:mysecretpassword@postgresql.okfn-brasil.svc.cluster.local/jarbas
+  POSTGRES_DB: jarbas
+  POSTGRES_PASSWORD: mysecretpassword
+  POSTGRES_USER: jarbas
+{{- end }}

@@ -11,6 +11,9 @@ fullnameOverride: ""
 migrationsPodAnnotations: {}
 appPodAnnotations: {}
 
+migrations:
+  run: false
+
 service:
   type: ClusterIP
   port: 80

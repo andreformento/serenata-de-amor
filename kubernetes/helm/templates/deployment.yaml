@@ -27,19 +27,16 @@ spec:
               containerPort: 8000
               protocol: TCP
           envFrom:
-          - configMapRef:
-              name: {{ include "jarbas.fullname" . }}
-          # volumeMounts:
-          #   - name: config-volume
-          #     mounthPath: /
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+            - configMapRef:
+                name: {{ include "jarbas.fullname" . }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
           resources:
             {{- toYaml .Values.resources.app | nindent 12 }}
       {{- with .Values.nodeSelector }}

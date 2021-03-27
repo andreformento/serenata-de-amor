@@ -1,3 +1,4 @@
+# TODO: check this image
 FROM codesimple/elm:0.18 as elm-builder
 
 WORKDIR /code

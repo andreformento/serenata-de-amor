@@ -48,6 +48,7 @@ class Core:
         output = os.path.join(self.data_path, 'suspicions.xz')
         kwargs = dict(compression='xz', encoding='utf-8', index=False)
         self.suspicions.to_csv(output, **kwargs)
+        self.log.info(f'Suspicions file saved at {output}')
 
     def load_trained_model(self, classifier):
         filename = '{}.pkl'.format(classifier.__name__.lower())
@@ -66,12 +67,16 @@ class Core:
                 model.fit(self.dataset)
                 joblib.dump(model, path)
 
+        self.log.info(f'Load finished {classifier}')
         return model
 
     def predict(self, model, name):
         model.transform(self.dataset)
+        self.log.info(f'Model transform finished {name}')
         prediction = model.predict(self.dataset)
+        self.log.info(f'Model predict finished {name}')
         self.suspicions[name] = prediction
         if prediction.dtype == np.int:
             self.suspicions.loc[prediction == 1, name] = False
             self.suspicions.loc[prediction == -1, name] = True
+        self.log.info(f'Predict finished {name}')

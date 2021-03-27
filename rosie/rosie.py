@@ -12,6 +12,7 @@ Options:
   --help                Show this screen
   --output=<directory>  Output directory [default: /tmp/serenata-data]
 """
+import logging
 import os
 import unittest
 
@@ -21,6 +22,7 @@ import rosie
 import rosie.chamber_of_deputies
 import rosie.federal_senate
 
+log = logging.getLogger(__name__)
 
 def get_module(arguments):
     modules = ('chamber_of_deputies', 'federal_senate', 'core')
@@ -32,6 +34,7 @@ def get_module(arguments):
 def run(module, directory):
     module = getattr(rosie, module)
     module.main(directory)
+    self.log.info(f'Done! See more at: {directory}')
 
 
 def test(module=None):

@@ -12,6 +12,14 @@ A Python application reading receipts from the Quota for Exercising Parliamentar
 $ docker run --rm -v /tmp/serenata-data:/tmp/serenata-data serenata/rosie python rosie.py run <module-name>
 ```
 
+TODO
+```console
+docker build . -t andreformento/serenata-de-amor-rosie
+docker rm rosie
+docker run --name rosie --memory="25g" andreformento/serenata-de-amor-rosie rosie.py run chamber_of_deputies --output /home/test_user/output
+docker cp rosie:/home/test_user/output output
+```
+
 `<module-name>` might be either `chamber_of_deputies` or `federal_senate`. After running it, check your `/tmp/serenata-data/` directory in you host machine for `suspicions.xz`. It's a compacted CSV with all the irregularities Rosie was able to find.
 
 #### Testing

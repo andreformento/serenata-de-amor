@@ -22,6 +22,9 @@ import rosie
 import rosie.chamber_of_deputies
 import rosie.federal_senate
 
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=LOG_LEVEL)
+
 log = logging.getLogger(__name__)
 
 def get_module(arguments):

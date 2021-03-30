@@ -4,3 +4,5 @@
 .python-version
 __pycache__/
 htmlcov/
+
+rosie/chamber_of_deputies/tests/fixtures/traveledspeedsclassifier*

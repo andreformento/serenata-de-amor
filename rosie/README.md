@@ -14,10 +14,16 @@ $ docker run --rm -v /tmp/serenata-data:/tmp/serenata-data serenata/rosie python
 
 TODO
 ```console
+docker rm -f rosie || true
 docker build . -t andreformento/serenata-de-amor-rosie
-docker rm rosie
-docker run --name rosie --memory="25g" andreformento/serenata-de-amor-rosie rosie.py run chamber_of_deputies --output /home/test_user/output
-docker cp rosie:/home/test_user/output output
+docker run --name rosie --memory="25g" -e LOG_LEVEL=debug andreformento/serenata-de-amor-rosie rosie.py run chamber_of_deputies --output /home/test_user/output
+rm -rf output && docker cp rosie:/home/test_user/output output
+```
+
+Test [reference](https://pandas.pydata.org/pandas-docs/stable/user_guide/scale.html)
+```
+docker build . -t andreformento/serenata-de-amor-rosie
+docker run --memory="25g" --rm andreformento/serenata-de-amor-rosie rosie.py test chamber_of_deputies
 ```
 
 `<module-name>` might be either `chamber_of_deputies` or `federal_senate`. After running it, check your `/tmp/serenata-data/` directory in you host machine for `suspicions.xz`. It's a compacted CSV with all the irregularities Rosie was able to find.

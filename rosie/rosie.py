@@ -5,12 +5,13 @@ I'm a proof-of-concept for the usage of artificial intelligence for social
 control of public administration.
 
 Usage:
-  rosie.py run (chamber_of_deputies|federal_senate) [--output=<directory>]
+  rosie.py run (chamber_of_deputies|federal_senate) [--output=<directory>] [--skip_loaded_files=<Boolean>]
   rosie.py test [chamber_of_deputies|federal_senate|core]
 
 Options:
-  --help                Show this screen
-  --output=<directory>  Output directory [default: /tmp/serenata-data]
+  --help                        Show this screen
+  --output=<directory>          Output directory [default: /tmp/serenata-data]
+  --skip_loaded_files=<Boolean> If files already loaded will be skipped [default: False]
 """
 import logging
 import os
@@ -34,10 +35,10 @@ def get_module(arguments):
             return module
 
 
-def run(module, directory):
+def run(module, directory, skip_loaded_files=False):
     module = getattr(rosie, module)
-    module.main(directory)
-    self.log.info(f'Done! See more at: {directory}')
+    module.main(directory, skip_loaded_files)
+    log.info(f'Done! See more at: {directory}')
 
 
 def test(module=None):
@@ -63,7 +64,7 @@ def main():
 
     if arguments['run']:
         module = module if module != 'core' else None
-        run(module, arguments['--output'])
+        run(module, arguments['--output'], arguments['--skip_loaded_files'])
 
 
 if __name__ == '__main__':

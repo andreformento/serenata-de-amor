@@ -14,13 +14,28 @@ COLUMNS = {
 
 class Adapter:
 
-    def __init__(self, path):
+    def __init__(self, path, skip_loaded_files=False):
         self.path = path
+        self.skip_loaded_files = skip_loaded_files
+
+    def load_datasets(self):
+        # TODO skip_loaded_files
+        os.makedirs(self.path, exist_ok=True)
+        federal_senate = Dataset(self.path)
+        federal_senate.fetch()
+        federal_senate.translate()
+        self.federal_senate_reimbursements_path = federal_senate.clean()
 
     @property
     def dataset(self):
-        path = self.update_datasets()
-        self._dataset = pd.read_csv(path, dtype={'cnpj_cpf': np.str}, encoding='utf-8')
+        return self.__load_single_dataset()
+
+    @property
+    def dataset_chunks(self):
+        return [self.__load_single_dataset()]
+
+    def __load_single_dataset(self):
+        self._dataset = pd.read_csv(self.federal_senate_reimbursements_path, dtype={'cnpj_cpf': np.str}, encoding='utf-8')
         self.prepare_dataset()
         return self._dataset
 
@@ -40,12 +55,3 @@ class Adapter:
         # Federate Senate Reimbursments do not have document_type column which
         # is required by Rosie's core module, so we add all of them as 'unknown'
         self._dataset['document_type'] = 'unknown'
-
-    def update_datasets(self):
-        os.makedirs(self.path, exist_ok=True)
-        federal_senate = Dataset(self.path)
-        federal_senate.fetch()
-        federal_senate.translate()
-        federal_senate_reimbursements_path = federal_senate.clean()
-
-        return federal_senate_reimbursements_path

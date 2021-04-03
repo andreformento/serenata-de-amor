@@ -29,60 +29,55 @@ class Core:
     def __init__(self, settings, adapter):
         self.log = logging.getLogger(__name__)
         self.settings = settings
-        self.dataset = adapter.dataset
+        self.adapter = adapter
         self.data_path = adapter.path
-        if self.settings.UNIQUE_IDS:
-            self.suspicions = self.dataset[self.settings.UNIQUE_IDS].copy()
-        else:
-            self.suspicions = self.dataset.copy()
 
     def __call__(self):
-        total = len(self.settings.CLASSIFIERS)
-        running = 1
-        for name, classifier in self.settings.CLASSIFIERS.items():
-            self.log.info(f'Running classifier {running} of {total}: {name}')
-            model = self.load_trained_model(classifier)
-            self.predict(model, name)
-            running += 1
+        self.adapter.load_datasets()
 
-        output = os.path.join(self.data_path, 'suspicions.xz')
-        kwargs = dict(compression='xz', encoding='utf-8', index=False)
-        self.suspicions.to_csv(output, **kwargs)
-        self.log.info(f'Suspicions file saved at {output}') # debug
+        total = len(self.settings.CLASSIFIERS)
+        dataset_iter = iter(self.adapter)
+
+        for year, df_chunk in dataset_iter:
+            running = 1
+
+            suspicions = df_chunk[self.settings.UNIQUE_IDS].copy() if self.settings.UNIQUE_IDS else df_chunk.copy()
+
+            for name, classifier in self.settings.CLASSIFIERS.items():
+                self.log.info(f'{year} :: Running classifier {running} of {total}: {name}')
+                model = self.load_trained_model(classifier)
+                predicted_chunk_df = self.predict(df_chunk, model, name)
+
+                suspicions[name] = predicted_chunk_df
+                if predicted_chunk_df.dtype == np.int:
+                    suspicions.loc[predicted_chunk_df == 1, name] = False
+                    suspicions.loc[predicted_chunk_df == -1, name] = True
+
+                running += 1
+
+            output = os.path.join(self.data_path, f'suspicions-{year}.xz')
+            kwargs = dict(compression='xz', encoding='utf-8', index=False)
+            suspicions.to_csv(output, **kwargs)
 
     def load_trained_model(self, classifier):
-        filename = '{}.pkl'.format(classifier.__name__.lower())
-        path = os.path.join(self.data_path, filename)
+        model_filename = '{}.pkl'.format(classifier.__name__.lower())
+        model_path = os.path.join(self.data_path, model_filename)
 
         # palliative: this outputs a model too large for joblib
         if classifier.__name__ == 'MonthlySubquotaLimitClassifier':
+            full_dataset = self.adapter.dataset
             model = classifier()
-            self.log.info(f'Model {classifier} fit, dataset {self.dataset}') # debug
-            model.fit(self.dataset)
-
+            model.fit(full_dataset)
         else:
-            if os.path.isfile(path):
-                self.log.info(f'Model fit {classifier} load, is file from path {path}') # debug
-                model = joblib.load(path)
+            if os.path.isfile(model_path):
+                model = joblib.load(model_path)
             else:
+                full_dataset = self.adapter.dataset
                 model = classifier()
-                self.log.info(f'Model fit {classifier} from classifier, dataset {self.dataset}') # debug
-                model.fit(self.dataset)
-                self.log.info(f'Model joblib dump {classifier} from classifier, path {path}') # debug
-                joblib.dump(model, path)
-
-        self.log.info(f'Load finished {classifier}') # debug
+                model.fit(full_dataset)
+                joblib.dump(model, model_path)
         return model
 
-    def predict(self, model, name):
-        model.transform(self.dataset)
-        dump_path = os.path.join(self.data_path, 'dataset_dump.csv')
-        self.dataset.to_csv(dump_path) # debug
-        self.log.info(f'Model transform finished {name}. Starting predict {model}') # debug
-        prediction = model.predict(self.dataset)
-        self.log.info(f'Model predict finished {name}') # debug
-        self.suspicions[name] = prediction
-        if prediction.dtype == np.int:
-            self.suspicions.loc[prediction == 1, name] = False
-            self.suspicions.loc[prediction == -1, name] = True
-        self.log.info(f'Predict finished {name}') # debug
+    def predict(self, df_chunk, model, name):
+        model.transform(df_chunk)
+        return  model.predict(df_chunk)

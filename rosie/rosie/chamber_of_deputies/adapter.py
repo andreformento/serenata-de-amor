@@ -30,13 +30,61 @@ class Adapter:
         'subquota_number': np.str
     }
 
-    def __init__(self, path):
+    def __init__(self, path, skip_loaded_files=False):
         self.path = path
+        self.skip_loaded_files = skip_loaded_files
         self.log = logging.getLogger(__name__)
+        current_year = date.today().year # TODO +1 -> 2021 was removed because have a problem -> ValueError: new categories need to have the same number of items as the old categories!
+        self.years = range(self.STARTING_YEAR, current_year)
+
+    def __iter__(self):
+        self.current_year_index = 0
+        return self
+
+    def __next__(self):
+        if self.current_year_index < len(self.years):
+            year = self.years[self.current_year_index]
+            dataset_chunk = self.__get_dataset_chunk_by_year(year)
+            self.current_year_index += 1
+            return year, dataset_chunk
+        else:
+            raise StopIteration
+
+    def __get_dataset_chunk_by_year(self, year):
+        dataset_chunk = self.read_reimbursements(year=year).merge(
+            self.companies,
+            how='left',
+            left_on='cnpj_cpf',
+            right_on='cnpj'
+        )
+        self.prepare_dataset(dataset_chunk)
+        return dataset_chunk
+
+    def load_datasets(self):
+        self.load_companies()
+        self.load_reimbursements()
+
+    def load_companies(self):
+        if self.skip_loaded_files and os.path.isfile(os.path.join(self.path, self.COMPANIES_DATASET)):
+            self.log.info(f'Update companies skiped')
+        else:
+            self.log.info('Updating companies')
+            os.makedirs(self.path, exist_ok=True)
+            fetch(self.COMPANIES_DATASET, self.path)
+
+    def load_reimbursements(self, year=None):
+        if self.skip_loaded_files and self.__get_reimbursements_paths(year=year):
+            self.log.info(f'Update reimbursements skiped')
+        else:
+            for year in self.years:
+                self.log.info(f'Updating reimbursements from {year}')
+                try:
+                    Reimbursements(year, self.path)()
+                except HTTPError as e:
+                    self.log.error(f'Could not update Reimbursements from year {year}: {e} - {e.filename}')
 
     @property
     def dataset(self):
-        self.update_datasets()
         df = self.reimbursements.merge(
             self.companies,
             how='left',
@@ -44,12 +92,12 @@ class Adapter:
             right_on='cnpj'
         )
         self.prepare_dataset(df)
-        self.log.info('Dataset ready! Rosie starts her analysis now :)')
+        self.log.info('Full dataset ready!')
         return df
 
     @property
     def companies(self):
-        self.log.info('Loading companies')
+        self.log.debug('Loading companies')
         path = Path(self.path) / self.COMPANIES_DATASET
         df = pd.read_csv(path, dtype={'cnpj': np.str}, low_memory=False)
         df['cnpj'] = df['cnpj'].str.replace(r'\D', '')
@@ -57,39 +105,26 @@ class Adapter:
 
     @property
     def reimbursements(self):
-        df = pd.DataFrame()
+        return self.read_reimbursements()
+
+    def __get_reimbursements_paths(self, year=None):
         paths = (
             str(path) for path in Path(self.path).glob('*.csv')
             if match(self.REIMBURSEMENTS_PATTERN, path.name)
         )
 
-        for path in paths:
-            self.log.info(f'Loading reimbursements from {path}')
+        return [path for path in paths if (not year) or str(year) in path]
+
+    def read_reimbursements(self, year=None):
+        df = pd.DataFrame()
+        filtered_paths = self.__get_reimbursements_paths(year=year)
+
+        for path in filtered_paths:
+            self.log.debug(f'Loading reimbursements from {path}')
             year_df = pd.read_csv(path, dtype=self.DTYPE, low_memory=False)
             df = df.append(year_df)
 
         return df
-
-    def update_datasets(self):
-        self.update_companies()
-        self.update_reimbursements()
-
-    def update_companies(self):
-        self.log.info('Updating companies')
-        os.makedirs(self.path, exist_ok=True)
-        fetch(self.COMPANIES_DATASET, self.path)
-
-    def update_reimbursements(self, years=None):
-        if not years:
-            next_year = date.today().year + 1
-            years = range(self.STARTING_YEAR, next_year)
-
-        for year in years:
-            self.log.info(f'Updating reimbursements from {year}')
-            try:
-                Reimbursements(year, self.path)()
-            except HTTPError as e:
-                self.log.error(f'Could not update Reimbursements from year {year}: {e} - {e.filename}')
 
     def prepare_dataset(self, df):
         self.rename_categories(df)
@@ -97,11 +132,11 @@ class Adapter:
         self.rename_columns(df)
 
     def rename_columns(self, df):
-        self.log.info('Renaming columns to Serenata de Amor standard')
+        self.log.debug('Renaming columns to Serenata de Amor standard')
         df.rename(columns=self.RENAME_COLUMNS, inplace=True)
 
     def rename_categories(self, df):
-        self.log.info('Categorizing reimbursements')
+        self.log.debug('Categorizing reimbursements')
 
         # There's no documented type for `3`, `4` and `5`, thus we assume it's
         # an input error until we hear back from Chamber of Deputies
@@ -118,5 +153,5 @@ class Adapter:
 
     def coerce_dates(self, df):
         for field, fmt in (('issue_date', '%Y-%m-%d'), ('situation_date', '%d/%m/%Y')):
-            self.log.info(f'Coercing {field} column to date data type')
+            self.log.debug(f'Coercing {field} column to date data type')
             df[field] = pd.to_datetime(df[field], format=fmt, errors='coerce')

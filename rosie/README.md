@@ -16,8 +16,13 @@ TODO
 ```console
 docker rm -f rosie || true
 docker build . -t andreformento/serenata-de-amor-rosie
-docker run --name rosie --memory="25g" -e LOG_LEVEL=debug andreformento/serenata-de-amor-rosie rosie.py run chamber_of_deputies --output /home/test_user/output
-rm -rf output && docker cp rosie:/home/test_user/output output
+docker run --name rosie \
+           --memory="25g" \
+           -e LOG_LEVEL=debug \
+           -v rosie_output_backup:/home/test_user:rw \
+           andreformento/serenata-de-amor-rosie \
+           rosie.py run chamber_of_deputies --output /home/test_user --skip_loaded_files True
+rm -rf output && docker cp rosie:/home/test_user output
 ```
 
 Test [reference](https://pandas.pydata.org/pandas-docs/stable/user_guide/scale.html)

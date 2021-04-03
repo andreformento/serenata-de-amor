@@ -1,4 +1,4 @@
-import logging
+from rosie.core.log_factory import LogFactory
 import os
 from datetime import date
 from pathlib import Path
@@ -33,7 +33,7 @@ class Adapter:
     def __init__(self, path, skip_loaded_files=False):
         self.path = path
         self.skip_loaded_files = skip_loaded_files
-        self.log = logging.getLogger(__name__)
+        self.log = LogFactory(__name__).create()
         current_year = date.today().year # TODO +1 -> 2021 was removed because have a problem -> ValueError: new categories need to have the same number of items as the old categories!
         self.years = range(self.STARTING_YEAR, current_year)
 

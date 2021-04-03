@@ -13,7 +13,6 @@ Options:
   --output=<directory>          Output directory [default: /tmp/serenata-data]
   --skip_loaded_files=<Boolean> If files already loaded will be skipped [default: False]
 """
-import logging
 import os
 import unittest
 
@@ -22,11 +21,9 @@ from docopt import docopt
 import rosie
 import rosie.chamber_of_deputies
 import rosie.federal_senate
+from rosie.core.log_factory import LogFactory
 
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logging.basicConfig(level=LOG_LEVEL)
-
-log = logging.getLogger(__name__)
+log = LogFactory(__name__).create()
 
 def get_module(arguments):
     modules = ('chamber_of_deputies', 'federal_senate', 'core')

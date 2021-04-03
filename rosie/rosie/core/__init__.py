@@ -1,9 +1,9 @@
-import logging
+from rosie.core.log_factory import LogFactory
 import os.path
 
 import numpy as np
+import pandas as pd
 from sklearn.externals import joblib
-
 
 class Core:
     """
@@ -27,7 +27,7 @@ class Core:
     """
 
     def __init__(self, settings, adapter):
-        self.log = logging.getLogger(__name__)
+        self.log = LogFactory(__name__).create()
         self.settings = settings
         self.adapter = adapter
         self.data_path = adapter.path
@@ -37,6 +37,7 @@ class Core:
 
         total = len(self.settings.CLASSIFIERS)
         dataset_iter = iter(self.adapter)
+        suspicions_by_year = []
 
         for year, df_chunk in dataset_iter:
             running = 1
@@ -55,9 +56,12 @@ class Core:
 
                 running += 1
 
-            output = os.path.join(self.data_path, f'suspicions-{year}.xz')
-            kwargs = dict(compression='xz', encoding='utf-8', index=False)
-            suspicions.to_csv(output, **kwargs)
+            suspicions_by_year.append(suspicions)
+
+        all_suspicions_years = pd.concat(suspicions_by_year)
+        output = os.path.join(self.data_path, f'suspicions.xz')
+        kwargs = dict(compression='xz', encoding='utf-8', index=False)
+        all_suspicions_years.to_csv(output, **kwargs)
 
     def load_trained_model(self, classifier):
         model_filename = '{}.pkl'.format(classifier.__name__.lower())

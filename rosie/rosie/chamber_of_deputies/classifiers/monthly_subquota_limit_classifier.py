@@ -133,6 +133,7 @@ class MonthlySubquotaLimitClassifier(TransformerMixin):
                             'is_over_monthly_subquota_limit'] = True
         results = self._X.loc[self.X.index, 'is_over_monthly_subquota_limit']
         return np.r_[results]
+        # return results
 
     def predict_proba(self, X=None):
         return 1.

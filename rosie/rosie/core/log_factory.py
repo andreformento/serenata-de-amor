@@ -6,11 +6,9 @@ class LogFactory():
 
     def __init__(self, class_name):
         self.class_name = class_name
-        print(f'self.LOG_LEVEL -> {self.LOG_LEVEL}')
         logging.basicConfig(level=self.LOG_LEVEL)
 
     def create(self):
         log = logging.getLogger(self.class_name)
         log.setLevel(self.LOG_LEVEL)
-        print(log.getEffectiveLevel())
         return log

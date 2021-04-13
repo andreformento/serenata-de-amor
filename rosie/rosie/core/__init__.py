@@ -43,11 +43,13 @@ class Core:
             running = 1
 
             suspicions = df_chunk[self.settings.UNIQUE_IDS].copy() if self.settings.UNIQUE_IDS else df_chunk.copy()
+            self.log.info(f'suspicions {type(suspicions)} {suspicions}') # debug
 
             for name, classifier in self.settings.CLASSIFIERS.items():
                 self.log.info(f'{year} :: Running classifier {running} of {total}: {name}')
                 model = self.load_trained_model(classifier)
                 predicted_chunk_df = self.predict(df_chunk, model, name)
+                self.log.info(f'predicted_chunk_df {type(predicted_chunk_df)} {predicted_chunk_df}') # debug
 
                 suspicions[name] = predicted_chunk_df
                 if predicted_chunk_df.dtype == np.int:
@@ -72,16 +74,19 @@ class Core:
             full_dataset = self.adapter.dataset
             model = classifier()
             model.fit(full_dataset)
+            self.log.info(f'{model_filename} fited') # debug
         else:
             if os.path.isfile(model_path):
                 model = joblib.load(model_path)
+                self.log.info(f'{model_filename} loaded') # debug
             else:
                 full_dataset = self.adapter.dataset
                 model = classifier()
                 model.fit(full_dataset)
                 joblib.dump(model, model_path)
+                self.log.info(f'{model_filename} fited and cached') # debug
         return model
 
     def predict(self, df_chunk, model, name):
         model.transform(df_chunk)
-        return  model.predict(df_chunk)
+        return model.predict(df_chunk)

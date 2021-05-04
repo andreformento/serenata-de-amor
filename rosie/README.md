@@ -13,6 +13,7 @@ $ docker run --rm -v /tmp/serenata-data:/tmp/serenata-data serenata/rosie python
 ```
 
 TODO
+- chamber_of_deputies
 ```console
 docker rm -f rosie || true
 docker build . -t serenata/rosie
@@ -22,6 +23,19 @@ docker run --name rosie \
            -v rosie_output_backup:/home/test_user:rw \
            serenata/rosie \
            rosie.py run chamber_of_deputies --output /home/test_user --skip_loaded_files True
+rm -rf output && docker cp rosie:/home/test_user output
+```
+
+- federal_senate
+```console
+docker rm -f rosie || true
+docker build . -t serenata/rosie
+docker run --name rosie \
+           --memory="12g" \
+           -e LOG_LEVEL=debug \
+           -v rosie_output_backup:/home/test_user:rw \
+           serenata/rosie \
+           rosie.py run federal_senate --output /home/test_user --skip_loaded_files True
 rm -rf output && docker cp rosie:/home/test_user output
 ```
 

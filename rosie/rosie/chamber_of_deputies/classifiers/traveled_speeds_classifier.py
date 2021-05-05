@@ -1,8 +1,8 @@
 from itertools import combinations
+import logging
 
 import numpy as np
 import pandas as pd
-from rosie.core.log_factory import LogFactory
 from sklearn.base import TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
@@ -45,7 +45,7 @@ class TraveledSpeedsClassifier(TransformerMixin):
             'longitude']
 
     def __init__(self, contamination=.001):
-        self.log = LogFactory(__name__).create()
+        self.log = logging.getLogger(__name__)
 
         if contamination in [0, 1]:
             raise ValueError('contamination must be greater than 0 and less than 1')

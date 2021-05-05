@@ -1,5 +1,5 @@
-from rosie.core.log_factory import LogFactory
 import os.path
+import logging
 
 import numpy as np
 import pandas as pd
@@ -27,7 +27,7 @@ class Core:
     """
 
     def __init__(self, settings, adapter):
-        self.log = LogFactory(__name__).create()
+        self.log = logging.getLogger(__name__)
         self.settings = settings
         self.adapter = adapter
         self.data_path = adapter.path

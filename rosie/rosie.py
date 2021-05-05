@@ -21,9 +21,6 @@ from docopt import docopt
 import rosie
 import rosie.chamber_of_deputies
 import rosie.federal_senate
-from rosie.core.log_factory import LogFactory
-
-log = LogFactory(__name__).create()
 
 def get_module(arguments):
     modules = ('chamber_of_deputies', 'federal_senate', 'core')

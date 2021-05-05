@@ -1,5 +1,5 @@
-from rosie.core.log_factory import LogFactory
 import os
+import logging
 from datetime import date
 from pathlib import Path
 from re import match
@@ -14,7 +14,7 @@ from serenata_toolbox.datasets import fetch
 
 class Adapter:
 
-    STARTING_YEAR = 2009
+    STARTING_YEAR = 2019
     COMPANIES_DATASET = '2016-09-03-companies.xz'
     REIMBURSEMENTS_PATTERN = r'reimbursements-\d{4}\.csv'
     RENAME_COLUMNS = {
@@ -33,7 +33,7 @@ class Adapter:
     def __init__(self, path, skip_loaded_files=False):
         self.path = path
         self.skip_loaded_files = skip_loaded_files
-        self.log = LogFactory(__name__).create()
+        self.log = logging.getLogger(__name__)
         current_year = date.today().year + 1
         self.years = range(self.STARTING_YEAR, current_year)
 
@@ -142,6 +142,9 @@ class Adapter:
         # an input error until we hear back from Chamber of Deputies
         types = ('bill_of_sale', 'simple_receipt', 'expense_made_abroad')
         converters = {number: None for number in range(3, 6)}
+
+        self.log.info(f'rename... ', df['document_type'])
+
         df['document_type'].replace(converters, inplace=True)
         df['document_type'] = df['document_type'].astype('category')
         df['document_type'].cat.rename_categories(types, inplace=True)
